@@ -91,9 +91,33 @@ public class EventControllerTest {
         EventDto eventDto = EventDto.builder().build();
 
         this.mockMvc.perform(post("/api/events/")
-//                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-//                    .content(this.objectMapper.writeValueAsString(eventDto))
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .content(this.objectMapper.writeValueAsString(eventDto))
                 )
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    public void createEvent_Bad_Request_Wrong_Input() throws Exception {
+        EventDto event = EventDto.builder()
+                .name("Spring")
+                .description("Test")
+                .beginEnrollmentDateTime(LocalDateTime.of(2019, 11, 29, 11, 20))
+                .closeEnrollmentDateTime(LocalDateTime.of(2019, 11, 28, 11, 20))
+                .beginEventDateTime(LocalDateTime.of(2019, 11, 30, 11, 20))
+                .endEventDateTime(LocalDateTime.of(2019, 11, 29, 11, 20))
+                .basePrice(100)
+                .maxPrice(10)
+                .limitOfEnrollment(100)
+                .location("Test")
+                .build();
+
+        mockMvc.perform(post("/api/events/")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
         ;
     }
