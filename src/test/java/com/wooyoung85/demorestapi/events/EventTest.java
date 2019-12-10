@@ -1,22 +1,26 @@
 package com.wooyoung85.demorestapi.events;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(JUnitParamsRunner.class)
 public class EventTest {
 
     @Test
-    public void builder(){
+    public void builder() {
         Event event = Event.builder()
-                .name("Test")
-                .description("test test")
-                .build();
+            .name("Test")
+            .description("test test")
+            .build();
         assertThat(event).isNotNull();
     }
 
     @Test
-    public void javaBean(){
+    public void javaBean() {
         Event event = new Event();
         String name = "Test";
         String description = "test test";
@@ -26,70 +30,54 @@ public class EventTest {
 
         assertThat(event.getName()).isEqualTo(name);
         assertThat(event.getDescription()).isEqualTo(description);
-        
+
+    }
+
+    private Object[] parametersForTestFree() {
+        return new Object[]{
+            new Object[]{0, 0, true},
+            new Object[]{100, 0, false},
+            new Object[]{0, 100, false}
+        };
     }
 
     @Test
-    public void testFree() {
+    @Parameters
+    public void testFree(int basePrice, int maxPrice, boolean isFree) {
         // Given
         Event event = Event.builder()
-                .basePrice(0)
-                .maxPrice(0)
-                .build();
+            .basePrice(basePrice)
+            .maxPrice(maxPrice)
+            .build();
 
         // When
         event.update();
 
         // Then
-        assertThat(event.isFree()).isTrue();
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
 
-        // Given
-        event = Event.builder()
-                .basePrice(100)
-                .maxPrice(0)
-                .build();
-
-        // When
-        event.update();
-
-        // Then
-        assertThat(event.isFree()).isFalse();
-
-        // Given
-        event = Event.builder()
-                .basePrice(0)
-                .maxPrice(100)
-                .build();
-
-        // When
-        event.update();
-
-        // Then
-        assertThat(event.isFree()).isFalse();
+    private Object[] parametersForTestOffline() {
+        return new Object[]{
+            new Object[]{"강남역", true},
+            new Object[]{null, false},
+            new Object[]{" ", false}
+        };
     }
 
     @Test
-    public void testOffline(){
+    @Parameters
+    public void testOffline(String location, boolean isOffline) {
         // Given
         Event event = Event.builder()
-                .location("강남역")
-                .build();
+            .location(location)
+            .build();
 
         // When
         event.update();
 
         // Then
-        assertThat(event.isOffline()).isTrue();
-
-        // Given
-        event = Event.builder()
-                .build();
-
-        // When
-        event.update();
-
-        // Then
-        assertThat(event.isOffline()).isFalse();
+        assertThat(event.isOffline()).isEqualTo(isOffline);
     }
 
 }
