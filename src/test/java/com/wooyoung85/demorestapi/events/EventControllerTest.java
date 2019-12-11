@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
+@ActiveProfiles("test")
 public class EventControllerTest {
 
     @Autowired
@@ -75,7 +77,8 @@ public class EventControllerTest {
                 links(
                     linkWithRel("self").description("link to self"),
                     linkWithRel("query-events").description("link to query events"),
-                    linkWithRel("update-event").description("link to update an existing")
+                    linkWithRel("update-event").description("link to update an existing"),
+                    linkWithRel("profile").description("link to update an existing")
                 ),
                 requestHeaders(
                     headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -112,9 +115,10 @@ public class EventControllerTest {
                     fieldWithPath("free").description("it tells if this event is free or not"),
                     fieldWithPath("offline").description("it tells if this event is offline or not"),
                     fieldWithPath("eventStatus").description("event status"),
-                    fieldWithPath("_links.self.href").description(""),
-                    fieldWithPath("_links.query-events.href").description(""),
-                    fieldWithPath("_links.update-event.href").description("")
+                    fieldWithPath("_links.self.href").description("link to self"),
+                    fieldWithPath("_links.query-events.href").description("link to query events"),
+                    fieldWithPath("_links.update-event.href").description("link to update event"),
+                    fieldWithPath("_links.profile.href").description("link to profile")
                 )
             ))
         ;
@@ -162,7 +166,7 @@ public class EventControllerTest {
     @Test
     @TestDescription("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception {
-        EventDto event = EventDto.builder()
+        EventDto eventDto = EventDto.builder()
             .name("Spring")
             .description("Test")
             .beginEnrollmentDateTime(LocalDateTime.of(2019, 11, 29, 11, 20))
@@ -177,10 +181,13 @@ public class EventControllerTest {
 
         mockMvc.perform(post("/api/events/")
             .contentType(MediaType.APPLICATION_JSON_UTF8)
-            .accept(MediaTypes.HAL_JSON)
-            .content(objectMapper.writeValueAsString(event)))
+            .content(objectMapper.writeValueAsString(eventDto)))
             .andDo(print())
             .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("content[0].objectName").exists())
+            .andExpect(jsonPath("content[0].defaultMessage").exists())
+            .andExpect(jsonPath("content[0].code").exists())
+            .andExpect(jsonPath("_links.index").exists())
         ;
     }
 }
