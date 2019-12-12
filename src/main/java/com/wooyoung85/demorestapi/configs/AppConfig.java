@@ -39,21 +39,21 @@ public class AppConfig {
 
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                Account wooyoung = Account.builder()
+                Account admin = Account.builder()
                     .email(appProperties.getAdminUsername())
                     .password(appProperties.getAdminPassword())
                     .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                     .build();
 
-                accountService.saveAccount(wooyoung);
+                accountService.saveAccount(admin);
 
-                Account wooyoung1 = Account.builder()
+                Account user = Account.builder()
                     .email(appProperties.getUserUsername())
                     .password(appProperties.getUserPassword())
                     .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                     .build();
 
-                accountService.saveAccount(wooyoung1);
+                accountService.saveAccount(user);
             }
         };
     }
