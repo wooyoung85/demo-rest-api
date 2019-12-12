@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -32,10 +33,13 @@ public class AccountServiceTest {
     @Autowired
     AccountRepository accountRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @Test
     public void findByUsername() {
-        String name = "awoodongs@gmail.com";
-        String password = "123";
+        String name = "awoodongs@naver.com";
+        String password = "password";
         //Ginven
         Account account = Account.builder()
             .email(name)
@@ -43,24 +47,25 @@ public class AccountServiceTest {
             .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
             .build();
 
-        accountRepository.save(account);
+        this.accountService.saveAccount(account);
+        //this.accountRepository.save(account);
 
         //When
         UserDetailsService userDetailsService = accountService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(name);
 
         //Then
-        assertThat(userDetails.getPassword()).isEqualTo(password);
+        assertThat(this.passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }
 
     @Test
     public void findByUsernameFail() {
-        String username = "awoodongs@gmail.com";
+        String username = "awoodongs@naver.com";
         //Expected
         expectedException.expect(UsernameNotFoundException.class);
         expectedException.expectMessage(Matchers.containsString(username));
 
         //When
-        accountService.loadUserByUsername(username);
+        this.accountService.loadUserByUsername(username);
     }
 }
