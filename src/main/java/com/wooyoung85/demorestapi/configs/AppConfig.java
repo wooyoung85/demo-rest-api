@@ -1,6 +1,7 @@
 package com.wooyoung85.demorestapi.configs;
 
 import com.wooyoung85.demorestapi.accounts.Account;
+import com.wooyoung85.demorestapi.accounts.AccountRepository;
 import com.wooyoung85.demorestapi.accounts.AccountRole;
 import com.wooyoung85.demorestapi.accounts.AccountService;
 import org.modelmapper.ModelMapper;
@@ -33,15 +34,26 @@ public class AppConfig {
             @Autowired
             AccountService accountService;
 
+            @Autowired
+            AppProperties appProperties;
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
                 Account wooyoung = Account.builder()
-                    .email("awoodongs@gmail.com")
-                    .password("password")
+                    .email(appProperties.getAdminUsername())
+                    .password(appProperties.getAdminPassword())
                     .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                     .build();
 
                 accountService.saveAccount(wooyoung);
+
+                Account wooyoung1 = Account.builder()
+                    .email(appProperties.getUserUsername())
+                    .password(appProperties.getUserPassword())
+                    .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                    .build();
+
+                accountService.saveAccount(wooyoung1);
             }
         };
     }
